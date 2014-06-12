@@ -11,9 +11,10 @@ class OrdersWrapper():
         self.Eat=1
         self.Reproduce=0
         self.Grow=0
+        self.Store=0
 
 class AnimalBirthWrapper():
-    def __init__(self, Size, Health, Calories, Stomach, A):
+    def __init__(self, Size, Health, Sugar, Fat, Stomach, A):
         self.X=[0,0]
         self.X[0]=A.X[0]
         self.X[1]=A.X[1]
@@ -22,7 +23,8 @@ class AnimalBirthWrapper():
         self.Metabolism=A.Metabolism
         self.Attack=A.Attack
         self.Size=Size
-        self.Calories=Calories
+        self.Sugar=Sugar
+        self.Fat=Fat
         self.Health=Health
         self.Stomach=Stomach
         self.handle=A.handle
@@ -53,8 +55,10 @@ class AnimalWrapper():
 					self.Attack = float(line[6:])
 				elif 'Size' == line[:4]:
 					self.Size = float(line[4:])
-			self.Calories = self.Size/10.0
-			self.Stomach = self.Calories*100.0/self.Metabolism*0.005
+			self.Sugar = self.Size/10.0
+			self.Fat = self.Size/10.0
+			#self.Stomach = self.Sugar*100.0/self.Metabolism*0.005
+			self.Stomach=0
 			self.Health = self.Size
 			# Get the function for this animal
 			print 'Starting to generate handle'
@@ -62,7 +66,9 @@ class AnimalWrapper():
 			print 'Finished to generate handle'
 			# Setting the function to be called as the handle
 			self.handle = getattr(temp, Name)
+			print 'here2'
 		        self.Color = temp.GetColor()
+		        print 'here3'
 		        self.Memory = temp.GetMemory()
 		        self.Training = temp.GetTraining()
 		except:
