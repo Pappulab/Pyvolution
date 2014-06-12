@@ -83,6 +83,9 @@ class Pyvolution(Frame):
 		plantSizes is a matrix giving the caloric value of each plant
 		maxCal gives the theoretical maximum amount of calories any plant can have on the grid
 		'''
+		print 'Initialize Plants'
+		self.plantIDs = []
+		
 		gridSizeX = len(plantSizes)
 		gridSizeY = len(plantSizes[0])
 		
@@ -111,6 +114,7 @@ class Pyvolution(Frame):
 				
 				objID.append(oneID)
 			self.plantIDs.append(objID)
+		print 'Initialized plants ' , str(len(self.plantIDs))
 				
 	def updatePlants(self, plantSizes, maxCal):
 		'''
@@ -216,9 +220,6 @@ class Pyvolution(Frame):
 	
 	def simulate(self):
 		import time
-		# If this was previously canceled, uncancel
-		if self.canceled:
-			self.canceled = False
 	
 		# Hide: sim/quit and Show: pause/cancel
 		self.pauseButton.grid()
@@ -229,21 +230,17 @@ class Pyvolution(Frame):
 		
 		self.scaleWidget.grid(columnspan=8)
 		
+		self.canceled = False
 		# Kill everything
-		for d in self.deadIDs:
-	          	self.canvas.delete(d[0])
-			self.canvas.delete(d[1])
-		for a in self.animalIDs:
-			self.canvas.delete(a)
-		for p in self.plantIDs:
-		        self.canvas.delete(p)
+		self.canvas.delete(ALL)
 		
 		self.animalIDs = []
 		self.deadIDs = []
-		self.plantIDS = []
+		self.plantIDs = []
 		
 		# If this is the first simulation that the user is running on this instance...
 	        thread1 = threading.Thread(target=threadSimulation_Mixed, args=(self,))
+	        thread1.setDaemon(True)
 		thread1.start()
 		
 		self.runEvent.set()

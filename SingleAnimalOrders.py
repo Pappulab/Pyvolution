@@ -2,7 +2,7 @@
 from CalculateLocalFood import *
 from EatLocalFood import *
 
-def SingleAnimalOrders(Animals,i,Veg,Or,gui):
+def SingleAnimalOrders(Animals,i,Veg,Or):
     
     LocalFood=CalculateLocalFood(Animals[i].X,Animals[i].Size,Veg)
     [Orders,Memory,Training]=Animals[i].handle(Animals[i],LocalFood)
@@ -32,20 +32,21 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     elif Orders.Store<0:
         Animals[i].Fat+=Orders.Store*2
     
-    Eat=Orders.Eat*min(LocalFood/10,min(LocalFood/10,Animals[i].Size/100))
     Eat=Orders.Eat*min(LocalFood,Animals[i].Size**(.5)/5)
     if Orders.Eat>0 and Eat>0:
-        #gui.queue.put(str(Eat))
         EatLocalFood(Animals[i].X, Animals[i].Size, Veg, Eat)
     Animals[i].Stomach+= Eat - Animals[i].Stomach*Animals[i].Metabolism/100
     
     #pay the caloires:
     Animals[i].Sugar+= (- CostOfLife 
-    - CostOfSugar*Animals[i].Sugar + 
-    Animals[i].Metabolism*(1-Animals[i].Metabolism)/100*Animals[i].Stomach - 
-    Orders.Grow - Orders.Store - Orders.Reproduce - CostOfSpeed*(Animals[i].V+Orders.Accelerate) - 
-    CostOfAcc*Orders.Accelerate**2 - CostOfTurn*(Animals[i].V+Orders.Accelerate)*Orders.Turn**2 - 
-    CostOfAttack*Orders.Attack)
+    + Animals[i].Metabolism*(1-Animals[i].Metabolism)/100*Animals[i].Stomach 
+    -Orders.Grow - Orders.Store - Orders.Reproduce - CostOfSpeed*(Animals[i].V+Orders.Accelerate)  
+    -CostOfAcc*Orders.Accelerate**2 - CostOfTurn*(Animals[i].V+Orders.Accelerate)*Orders.Turn**2 
+    -CostOfAttack*Orders.Attack) 
+    Animals[i].Sugar-= CostOfSugar*Animals[i].Sugar
+    
+    #print([int(Animals[i].Stomach),int(Animals[i].Sugar),int(Animals[i].Fat),int(Animals[i].Size)])
+    
     
     Or[i][0]=Orders.Accelerate
     Or[i][1]=Orders.Turn

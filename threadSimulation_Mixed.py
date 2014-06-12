@@ -22,9 +22,11 @@ def threadSimulation_Mixed(gui):
             isLoading = gui.usingLoad
         finally:
             lock.release()
+        gui.queue.put('thread started')
         if isLoading:
+            gui.queue.put('Is Loading')
             finit = open('InitVars.pkl','rb')
-            [aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, PrintVeg, VegM, MaxColor, LinVeg] = pickle.load(finit)
+            [aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, VegM, MaxColor, LinVeg] = pickle.load(finit)
             finit.close()
             
             seed(aSeed)
@@ -43,12 +45,28 @@ def threadSimulation_Mixed(gui):
    	    PrintColor = [a.Color for a in Animals]
    	    PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
    	    
+   	    PrintVeg=[[0 for k in range(MapSize)] for j in range(MapSize)]
+   	    for j in range(MapSize):
+                for k in range(MapSize):
+                    if Veg[j][k]<= LinVeg:
+                        PrintVeg[j][k]= Veg[j][k]/LinVeg/2.0
+                    else:
+                        PrintVeg[j][k]= (log(Veg[j][k]/VegM) + log(VegM/LinVeg))/log(VegM/LinVeg)/2 + .5
+   		
+   	    
    	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
    	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
-        
+            
+            lock.acquire()
+            try:
+                gui.usingLoad = False
+            finally:
+                lock.release()
         else:
+            gui.queue.put('Not loading')
             startStep = 0
    	    aSeed = randint(0, maxint)
+   	    aSeed=10
             seed(aSeed)
             # Directory:
             MyDir=""
@@ -93,7 +111,7 @@ def threadSimulation_Mixed(gui):
                         PrintVeg[j][k]= (log(Veg[j][k]/VegM) + log(VegM/LinVeg))/log(VegM/LinVeg)/2 + .5
    		           
             fout = open('InitVars.pkl','wb')
-            pickle.dump([aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, PrintVeg, VegM, MaxColor, LinVeg], fout)
+            pickle.dump([aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, VegM, MaxColor, LinVeg], fout)
             fout.close()
             
    	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
@@ -141,8 +159,8 @@ def threadSimulation_Mixed(gui):
 		
                 for i2 in range(len(Alive)):
                     if Alive[i2]:
-                        SingleAnimalOrders(Animals,i2,Veg,Or,gui)
-                AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,i)
+                        SingleAnimalOrders(Animals,i2,Veg,Or)
+                AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui)
 		
 		
 		if random()<1.0:

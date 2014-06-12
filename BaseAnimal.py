@@ -1,7 +1,6 @@
 #/usr/bin/python
 from InitializeAnimals import OrdersWrapper
 from random import random
-from math import acos
 
 def BaseAnimal(Animal,LocalFood):
     Orders=OrdersWrapper()
@@ -15,18 +14,39 @@ def BaseAnimal(Animal,LocalFood):
     Orders.Grow=0
     Orders.Store=0
     
-    CostOfLife=Animal.Size**.5/1000.0**.5 + Animal.Fat**.5/1000.0**.5
-    CostOfSpeed=CostOfLife*2.0
-    CostOfAcc=CostOfLife*5.0
-    CostOfTurn=CostOfLife*5.0/20**2
+    CostOfLife=(Animal.Size + Animal.Fat)**.5/1000.0**.5
+    CostOfSpeed=CostOfLife
+    CostOfAcc=CostOfLife*4.0
+    CostOfTurn=CostOfLife/20**2
     CostOfAttack=CostOfLife
     CostOfSugar=.01
-    TotalGain=min(LocalFood,Animal.Size**(.5)/5)
+    Edible=min(LocalFood,Animal.Size**(.5)/5)
     
-    GoalFood=CostOfLife*1.5
-    if LocalFood<GoalFood/2:
+    
+    #Orders.Accelerate=.2
+    
+    #if Animal.V<1:
+    #    Orders.Accelerate=.5
+    #else:
+    #    Orders.Accelerate=0
+    
+    RequiredFood=CostOfLife
+    if LocalFood<RequiredFood:
         if Animal.V==0:
             Orders.Accelerate=.5
+        else:
+            Orders.Accelerate=0
+    elif LocalFood>RequiredFood*1.5:
+        Orders.Accelerate=-Animal.V
+        
+        
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -34,7 +54,7 @@ def BaseAnimal(Animal,LocalFood):
     GoalSugar+= (Orders.Accelerate**2*CostOfAcc + (Orders.Accelerate+Animal.V)*CostOfSpeed
     + Orders.Turn**2*CostOfTurn + Orders.Reproduce)
     GoalSugar=GoalSugar/.98
-    if Animal.Sugar>GoalSugar:
+    if Animal.Sugar>GoalSugar*2:
         Orders.Store=(Animal.Sugar-GoalSugar)
     elif Animal.Sugar<GoalSugar:
         Orders.Store=Animal.Sugar-GoalSugar

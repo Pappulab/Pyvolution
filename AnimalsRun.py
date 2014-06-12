@@ -3,7 +3,7 @@ from math import sin, cos, pi
 from InitializeAnimals import AnimalBirthWrapper
 
 
-def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,time):
+def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui):
     
     GrowEff=.5
     for i in range(len(Alive)):
