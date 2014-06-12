@@ -1,9 +1,5 @@
 #/usr/bin/python
 
-
-
-
-
 from Tkinter import *
 from operator import add
 
@@ -13,6 +9,15 @@ from math import sin, cos, pi
 
 from threadSimulation_Mixed import *		# Arbitrary simulation skeleton
 
+class ScaleSpeed():
+    def __init__(self):
+        self.value = 0
+    def set(self, val):
+        self.value = val
+    def scalePow(self, val):
+        self.value = int(10**(float(val)/10000.0))-1
+    def get(self):
+        return self.value
 
 class Pyvolution(Frame):
 	def __init__(self, gridSize=20, master=None):
@@ -23,7 +28,7 @@ class Pyvolution(Frame):
 		self.animalIDs = []
 		self.animalColors = []
 		self.deadIDs = []
-		self.speed = IntVar()
+		self.speed = ScaleSpeed()
 		self.height = 700
 		self.width = 700
 		self.__createWidgets__()
@@ -35,16 +40,15 @@ class Pyvolution(Frame):
 		
 	def __createWidgets__(self):
 	   
-	    
 		self.canvas = Canvas(self,  height=self.height,  width=self.width)
 		self.canvas.grid(row=1, column=0,  columnspan=10, sticky=E+W)
 		
 		self.scaleLabel = Label(self, text="Simulation Speed", padx=0)
 		self.scaleLabel.grid(row=4, column=0)
 		
-		self.scaleWidget = Scale(self,  from_=1000,  to=.01,  orient=HORIZONTAL,
-		variable= self.speed,  showvalue=1)
-		self.scaleWidget.set(100)
+		self.scaleWidget = Scale(self,  from_=30005,  to=0,  orient=HORIZONTAL,
+		command=self.speed.scalePow,  showvalue=0)
+		self.scaleWidget.set(15000)
 		self.scaleWidget.grid(row=4,  column=1, columnspan=8,  sticky=W+E)
 		
 		# Buttons that are active when there is no simulation running
@@ -183,7 +187,12 @@ class Pyvolution(Frame):
 				R + 2.0/3.0*R*sin((rotArr[i]-20.0)/180.0*pi) + (posArr[i][1])*self.width)
 				
 		else:
-			raise ValueError('All lists must have the same number of animals')
+			raise ValueError('All lists must have the same number of animals\n' + 
+			'len(animalIDs)=' + str(len(self.animalIDs)) +
+			'len(isAliveArr)=' + str(len(isAliveArr)) +
+			'len(sizeArr)=' + str(len(sizeArr)) +
+			'len(posArr)=' + str(len(posArr)) +
+			'len(rotArr)=' + str(len(rotArr)))
 	
 	def kill(self, index):
 		'''

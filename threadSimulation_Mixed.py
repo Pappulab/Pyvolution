@@ -116,11 +116,9 @@ def threadSimulation_Mixed(gui):
 		           Veg[k][j]= 0 if Veg[k][j]<0 else Veg[k][j]
 		           
 #Finished calling a simulation step here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		gui.queue.put(str(Veg[1][1]))
 
-		if i % 100 ==1:
+		#if i % 100 ==1:
                     #gui.queue.put(str([i,len(Alive),int(Animals[0].V),int(Animals[0].T),int(Animals[0].Size),int(Animals[0].Sugar),int(Animals[0].Stomach),Animals[0].Memory[1]]))
-                    gui.queue.put(str(Veg[1][1]))
 		
 # My Print Statement Ends HERE::::##########################                    
                 
