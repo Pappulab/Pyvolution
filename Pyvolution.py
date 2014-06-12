@@ -15,7 +15,7 @@ class ScaleSpeed():
     def set(self, val):
         self.value = val
     def scalePow(self, val):
-        self.value = int(10**(float(val)/10000.0))-1
+        self.value = int(10**(float(val)/10000.0))
     def get(self):
         return self.value
 
@@ -28,6 +28,7 @@ class Pyvolution(Frame):
 		self.animalIDs = []
 		self.animalColors = []
 		self.deadIDs = []
+		self.usingLoad = False
 		self.speed = ScaleSpeed()
 		self.height = 700
 		self.width = 700
@@ -46,24 +47,27 @@ class Pyvolution(Frame):
 		self.scaleLabel = Label(self, text="Simulation Speed", padx=0)
 		self.scaleLabel.grid(row=4, column=0)
 		
-		self.scaleWidget = Scale(self,  from_=30005,  to=0,  orient=HORIZONTAL,
+		self.scaleWidget = Scale(self,  from_=30000,  to=0,  orient=HORIZONTAL,
 		command=self.speed.scalePow,  showvalue=0)
 		self.scaleWidget.set(15000)
-		self.scaleWidget.grid(row=4,  column=1, columnspan=8,  sticky=W+E)
+		self.scaleWidget.grid(row=4,  column=1, columnspan=7,  sticky=W+E)
 		
 		# Buttons that are active when there is no simulation running
 		self.quitButton = Button(self, text='Quit',  command=self.quit,  fg='red')
 		self.quitButton.grid(row=4,  column=9,  sticky=E)
 		
+		self.loadButton = Button(self, text='Load', command=self.load, fg='green')
+		self.loadButton.grid(row=4, column=9, sticky=W)
+		
 		self.simButton = Button(self, text='Simulate', command=self.simulate, fg='blue')
-		self.simButton.grid(row=4, column=9, sticky=W)
+		self.simButton.grid(row=4, column=8, sticky=W+E)
 		
 		# Buttons that are only visible when the simulation is running
 		self.cancelButton = Button(self, text='Cancel', command=self.cancel, fg='red')
 		self.cancelButton.grid(row=4, column=9, sticky=E)
 		self.cancelButton.grid_remove()
 		
-		self.pauseButton = Button(self, text='Pause', command=self.pause, fg='yellow')
+		self.pauseButton = Button(self, text='Pause', command=self.pause, fg='dark goldenrod')
 		self.pauseButton.grid(row=4, column=9, sticky=W)
 		self.pauseButton.grid_remove()
 		
@@ -220,7 +224,10 @@ class Pyvolution(Frame):
 		self.pauseButton.grid()
 		self.cancelButton.grid()
 		self.simButton.grid_remove()
+		self.loadButton.grid_remove()
 		self.quitButton.grid_remove()
+		
+		self.scaleWidget.grid(columnspan=8)
 		
 		# Kill everything
 		for d in self.deadIDs:
@@ -266,8 +273,15 @@ class Pyvolution(Frame):
 		self.pauseButton.grid_remove()
 		self.cancelButton.grid_remove()
 		self.simButton.grid()
+		self.loadButton.grid()
 		self.quitButton.grid()
 		
+		self.scaleWidget.grid(columnspan=7)
+	
+	def load(self):
+	    self.usingLoad = True
+	    self.simulate()
+			
 	def pause(self):
 		self.pauseButton.grid_remove()
 		self.continueButton.grid()

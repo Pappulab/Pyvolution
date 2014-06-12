@@ -2,75 +2,110 @@
 
 import time
 import threading
+import pickle
 
 from InitializeAnimals import *
 from InitializePlants  import *
 from SingleAnimalOrders import *
 from CalculateLocalFood import *
 from AnimalsRun import *
-from random import random, seed
+from random import random, seed, randint
 from math import log
+from sys import maxint
     
 
 def threadSimulation_Mixed(gui):
-	timesteps = 50000
-        #seed(27043536)
-        # Directory:
-        MyDir=""
+        timesteps = 50000
+        lock = threading.Lock()
+        lock.acquire()
+        try:
+            isLoading = gui.usingLoad
+        finally:
+            lock.release()
+        if isLoading:
+            finit = open('InitVars.pkl','rb')
+            [aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, PrintVeg, VegM, MaxColor, LinVeg] = pickle.load(finit)
+            finit.close()
+            
+            seed(aSeed)
+            
+            fautosave = open('Autosave.pkl','rb')
+            #[i, CurrentAnimals, Animals, Alive, Veg]
+            [startStep, curRand, AnimalReference, CurrentAnimals, Animals, Alive, Veg] = pickle.load(fautosave)
+            fautosave.close()
+            
+            # This should get us back to the right point in our random number generator
+            while random() != curRand:
+                continue
+                
+            PrintSize = [a.Size**.5/30/MapSize for a in Animals]
+            PrintTheta = [180.0-a.T for a in Animals]
+   	    PrintColor = [a.Color for a in Animals]
+   	    PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+   	    
+   	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
+   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
         
-        # All animals that are known
-        AnimalReference = ['BaseAnimal']
-        # Animals currently in the trial
-        CurrentAnimals = [0]
-        # Initialize all animals in args as 'alive'
-        Alive = [True for x in range(len(CurrentAnimals))]
-        MapSize = 50
-        Animals = InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize)
-        
-        PrintSize = [a.Size**.5/30/MapSize for a in Animals]
-        PrintTheta = [180.0-a.T for a in Animals]
-	PrintColor = [a.Color for a in Animals]
-	PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+        else:
+            startStep = 0
+   	    aSeed = randint(0, maxint)
+            seed(aSeed)
+            # Directory:
+            MyDir=""
+            
+            # All animals that are known
+            AnimalReference = ['BaseAnimal']
+            # Animals currently in the trial
+            CurrentAnimals = [0]
+            # Initialize all animals in args as 'alive'
+            Alive = [True for x in range(len(CurrentAnimals))]
+            MapSize = 50
+            Animals = InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize)
+            
+            PrintSize = [a.Size**.5/30/MapSize for a in Animals]
+            PrintTheta = [180.0-a.T for a in Animals]
+   	    PrintColor = [a.Color for a in Animals]
+   	    PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+   	
+            Veg_G1 = InitializePlants(MapSize, 0, 1)
+            Veg_G1=[[Veg_G1[j][k]*10+.0005 for k in range(MapSize)] for j in range(MapSize)]
+            Veg_G2 = InitializePlants(MapSize, 0, 1)
+            #Veg_G2=[[Veg_G2[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
+            Veg_D  = InitializePlants(MapSize, 0, 1)
+            Veg_D=[[Veg_D[j][k]/150+.0001 for k in range(MapSize)] for j in range(MapSize)]
+            Veg = InitializePlants(MapSize, 2, 2)
+            Veg=[[Veg[j][k]*100 for k in range(MapSize)] for j in range(MapSize)]
+            PrintVeg=[[0 for k in range(MapSize)] for j in range(MapSize)]
+            VegM=0
+            for j in range(MapSize):
+                for k in range(MapSize):
+                    if Veg[j][k]>VegM:
+                        VegM=Veg[j][k]
+                    if Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4>VegM:
+                        VegM=Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4
+            MaxColor=1
+            LinVeg=10.0
+            for j in range(MapSize):
+                for k in range(MapSize):
+                    if Veg[j][k]<= LinVeg:
+                        PrintVeg[j][k]= Veg[j][k]/LinVeg/2.0
+                    else:
+                        PrintVeg[j][k]= (log(Veg[j][k]/VegM) + log(VegM/LinVeg))/log(VegM/LinVeg)/2 + .5
+   		           
+            fout = open('InitVars.pkl','wb')
+            pickle.dump([aSeed, MapSize, Veg_G1, Veg_G2, Veg_D, PrintVeg, VegM, MaxColor, LinVeg], fout)
+            fout.close()
+            
+   	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
+   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
 	
-	
-	
-        Veg_G1 = InitializePlants(MapSize, 0, 1)
-        Veg_G1=[[Veg_G1[j][k]*10+.0005 for k in range(MapSize)] for j in range(MapSize)]
-        Veg_G2 = InitializePlants(MapSize, 0, 1)
-        #Veg_G2=[[Veg_G2[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
-        Veg_D  = InitializePlants(MapSize, 0, 1)
-        Veg_D=[[Veg_D[j][k]/150+.0001 for k in range(MapSize)] for j in range(MapSize)]
-        Veg = InitializePlants(MapSize, 2, 2)
-        Veg=[[Veg[j][k]*100 for k in range(MapSize)] for j in range(MapSize)]
-        PrintVeg=[[0 for k in range(MapSize)] for j in range(MapSize)]
-        Veg_Max=[[Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4 for k in range(MapSize)] for j in range(MapSize)]
-        VegM=0
-        for j in range(MapSize):
-            for k in range(MapSize):
-                if Veg[j][k]>VegM:
-                    VegM=Veg[j][k]
-                if Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4>VegM:
-                    VegM=Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4
-        MaxColor=1
-        LinVeg=10.0
-        for j in range(MapSize):
-            for k in range(MapSize):
-                if Veg[j][k]<= LinVeg:
-                    PrintVeg[j][k]= Veg[j][k]/LinVeg/2.0
-                else:
-                    PrintVeg[j][k]= (log(Veg[j][k]/VegM) + log(VegM/LinVeg))/log(VegM/LinVeg)/2 + .5
-		           
-        
-	gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
-	gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
 	Or = [[0 for x in range(6)] for y in range(len(CurrentAnimals))]
-        
         
 	start = time.time()
 	previous = int(start)
 	end = time.time()
 	canceled = False
-	lock = threading.Lock()
+	
 	lock.acquire()
 	try:
 		sp = gui.speed.get()
@@ -79,7 +114,7 @@ def threadSimulation_Mixed(gui):
 	finally:
 		lock.release()
 	
-	for i in range(timesteps):
+	for i in range(startStep, timesteps):
 		# pause if the user specified pause
 		gui.runEvent.wait()
 		
@@ -122,6 +157,9 @@ def threadSimulation_Mixed(gui):
 		if i % 100 ==1:
                     #gui.queue.put(str([i,len(Alive),int(Animals[0].V),int(Animals[0].T),int(Animals[0].Size),int(Animals[0].Sugar),int(Animals[0].Stomach),Animals[0].Memory[1]]))
                     gui.queue.put(str([i,Animals[0].Sugar,Animals[0].Fat]))
+                    fout = open('Autosave.pkl','wb')
+                    pickle.dump([i, random(), AnimalReference, CurrentAnimals, Animals, Alive, Veg],fout)
+                    fout.close()
                     #gui.queue.put(str(Veg[1][1]))
 		
 # My Print Statement Ends HERE::::##########################                    
