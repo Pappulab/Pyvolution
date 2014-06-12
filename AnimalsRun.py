@@ -21,10 +21,12 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,time):
             Animals[i].X[1]=(Animals[i].X[1] + Animals[i].V*sin(Animals[i].T/180.0*pi)) % MapSize
             
             if Or[i][4]>0:
-                Animals[i].Size+=Or[i][4]*GrowEff
-            elif Or[i][4]<0:
-                Animals[i].Size+=Or[i][4]/GrowEff
-            Animals[i].Size+=-Or[i][3]
+                Animals[i].Size+=Or[i][4]
+            if Or[i][3]==-1:
+                Animals[i].Unborn=0
+            elif Or[i][3]>0:
+                Animals[i].Unborn+= Or[i][3]/4
+            
             if Or[i][3]>0:
                 Alive.append(True)
                 CurrentAnimals.append(CurrentAnimals[i])
@@ -46,14 +48,15 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,time):
                 print 'TBD'
     for i in range(len(Alive)):
         if Alive[i]:
-            if Animals[i].Size<=0:
+            if Animals[i].Fat<=0:
                 gui.queue.put('Animal has metabolized its entire body')
+                gui.queue.put(str([Animals[i].Sugar,Animals[i].Size,Animals[i].Stomach]))
                 gui.queue.put(['kill',i])
                 Alive[i]=False
                 Animals[i].Size=0
-            elif Animals[i].Calories<=0:
+            elif Animals[i].Sugar<=0:
                 gui.queue.put('Animal has Starved to death')
-                gui.queue.put(str([Animals[i].Calories,Animals[i].Size,Animals[i].Stomach]))
+                gui.queue.put(str([Animals[i].Sugar,Animals[i].Size,Animals[i].Stomach]))
                 gui.queue.put(['kill',i])
                 Alive[i]=False
             elif Animals[i].Health<=0:

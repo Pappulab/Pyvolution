@@ -13,37 +13,31 @@ def Terminator(Animal,LocalFood):
     Orders.Eat=1
     Orders.Reproduce=0
     Orders.Grow=0
+    Orders.Store=0
     
-    CostOfLife=Animal.Size**.5/1000.0**.5
+    CostOfLife=Animal.Size**.5/1000.0**.5 + Animal.Fat**.5/1000.0**.5
     CostOfSpeed=CostOfLife*2.0
     CostOfAcc=CostOfLife*5.0
     CostOfTurn=CostOfLife*5.0/20**2
     CostOfAttack=CostOfLife
-    CostOfCalories=.01
+    CostOfSugar=.01
+    TotalGain=min(LocalFood,Animal.Size**(.5)/5)
     
-    TotalCost=CostOfLife
     
-    TotalGain=min(LocalFood,Animal.Size**.5/100)
-    GoalFood=5*(Animal.Size**.5/1000+Animal.Calories*.01)
+    
     CostOfExploring= Animal.Size**.5*(1.0/200+1.0/10+1.0*25.0**2/50000)
-    GoalCalories=CostOfLife+CostOfSpeed+CostOfTurn*20**2+CostOfAcc
-    print 'GoalCalories'
-    print GoalCalories
+    GoalSugar=CostOfLife+CostOfSpeed+CostOfTurn*20**2+CostOfAcc
+    print 'GoalSugar'
+    print GoalSugar
     print LocalFood
-    print [Animal.Size,Animal.Stomach,Animal.Calories]
+    print [Animal.Size,Animal.Stomach,Animal.Sugar]
     #print 'here'
     #print Memory[4]
     
     
     
     
-    #GoalCalories=10
-    GoalSize=1000
-    
-    if Animal.Calories>GoalCalories:
-        Orders.Grow=(Animal.Calories-GoalCalories)/10
-    elif Animal.Calories<GoalCalories/2:
-        Orders.Grow=Animal.Calories-GoalCalories/2
+    #GoalSugar=10
         
         
     if LocalFood<GoalFood/2:
@@ -158,6 +152,11 @@ def Terminator(Animal,LocalFood):
         
         
     
+    GoalSize=1000
+    if Animal.Sugar>GoalSugar:
+        Orders.Store=(Animal.Sugar-GoalSugar)/2
+    elif Animal.Sugar<GoalSugar:
+        Orders.Grow=Animal.Sugar-GoalSugar
     
     
     

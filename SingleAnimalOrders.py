@@ -20,12 +20,12 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     Orders.Turn=(Orders.Turn +180 % 360) - 180
     Orders.Attack=0
     
-    CostOfLife=Animals[i].Size**.5/1000.0**.5
-    CostOfSpeed=CostOfLife*2.0
-    CostOfAcc=CostOfLife*5.0
-    CostOfTurn=CostOfLife*5.0/20**2
+    CostOfLife=(Animals[i].Size + Animals[i].Fat)**.5/1000.0**.5
+    CostOfSpeed=CostOfLife
+    CostOfAcc=CostOfLife*4.0
+    CostOfTurn=CostOfLife/20**2
     CostOfAttack=CostOfLife
-    CostOfCalories=.01
+    CostOfSugar=.01
     
     
     Eat=Orders.Eat*min(LocalFood/10,min(LocalFood/10,Animals[i].Size/100))
@@ -37,10 +37,10 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     Animals[i].Stomach+= Eat - Animals[i].Stomach*Animals[i].Metabolism/100
     
     #pay the caloires:
-    Animals[i].Calories+= (- CostOfLife 
-    - CostOfCalories*Animals[i].Calories + 
+    Animals[i].Sugar+= (- CostOfLife 
+    - CostOfSugar*Animals[i].Sugar + 
     Animals[i].Metabolism*(1-Animals[i].Metabolism)/100*Animals[i].Stomach - 
-    Orders.Grow  - CostOfSpeed*(Animals[i].V+Orders.Accelerate) - 
+    Orders.Grow - Orders.Store - Orders.Reproduce - CostOfSpeed*(Animals[i].V+Orders.Accelerate) - 
     CostOfAcc*Orders.Accelerate**2 - CostOfTurn*(Animals[i].V+Orders.Accelerate)*Orders.Turn**2 - 
     CostOfAttack*Orders.Attack)
     
@@ -49,4 +49,6 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     Or[i][2]=Orders.Attack
     Or[i][3]=Orders.Reproduce
     Or[i][4]=Orders.Grow
+    Or[i][5]=Orders.Store
+    print Or[0]
     

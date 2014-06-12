@@ -14,12 +14,12 @@ from math import log
 
 def threadSimulation_Mixed(gui):
 	timesteps = 50000
-        seed(120)
+        seed(27043536)
         # Directory:
-        MyDir="/Users/tylerharmon/Documents/Outreach/PythonVersion/"
+        MyDir=""
         
         # All animals that are known
-        AnimalReference = ['Terminator']
+        AnimalReference = ['BaseAnimal']
         # Animals currently in the trial
         CurrentAnimals = [0]
         # Initialize all animals in args as 'alive'
@@ -34,12 +34,12 @@ def threadSimulation_Mixed(gui):
 	
 	
 	
-        Veg_G1 = InitializePlants(MapSize, 0)
-        Veg_G1=[[Veg_G1[j][k]/500+5 for k in range(MapSize)] for j in range(MapSize)]
+        Veg_G1 = InitializePlants(MapSize, 1)
+        Veg_G1=[[Veg_G1[j][k]*10+.0005 for k in range(MapSize)] for j in range(MapSize)]
         Veg_G2 = InitializePlants(MapSize, 0)
-        Veg_G2=[[Veg_G2[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
+        #Veg_G2=[[Veg_G2[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
         Veg_D  = InitializePlants(MapSize, 0)
-        Veg_D=[[Veg_D[j][k]/150+.001 for k in range(MapSize)] for j in range(MapSize)]
+        Veg_D=[[Veg_D[j][k]/150+.01 for k in range(MapSize)] for j in range(MapSize)]
         Veg = InitializePlants(MapSize, 0)
         PrintVeg=[[0 for k in range(MapSize)] for j in range(MapSize)]
         Veg_Max=[[Veg_G1[j][k]+ (1+Veg_G2[j][k])**2/Veg_D[j][k]/4 for k in range(MapSize)] for j in range(MapSize)]
@@ -119,7 +119,7 @@ def threadSimulation_Mixed(gui):
 		gui.queue.put(str(Veg[1][1]))
 
 		if i % 100 ==1:
-                    #gui.queue.put(str([i,len(Alive),int(Animals[0].V),int(Animals[0].T),int(Animals[0].Size),int(Animals[0].Calories),int(Animals[0].Stomach),Animals[0].Memory[1]]))
+                    #gui.queue.put(str([i,len(Alive),int(Animals[0].V),int(Animals[0].T),int(Animals[0].Size),int(Animals[0].Sugar),int(Animals[0].Stomach),Animals[0].Memory[1]]))
                     gui.queue.put(str(Veg[1][1]))
 		
 # My Print Statement Ends HERE::::##########################                    
