@@ -22,15 +22,14 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,time):
             
             if Or[i][4]>0:
                 Animals[i].Size+=Or[i][4]
-            if Or[i][3]==-1:
-                Animals[i].Unborn=0
             elif Or[i][3]>0:
-                Animals[i].Unborn+= Or[i][3]/4
+                Animals[i].Unborn+= Or[i][3]/5
             
-            if Or[i][3]>0:
+            if Or[i][3]==-1:
                 Alive.append(True)
                 CurrentAnimals.append(CurrentAnimals[i])
-                Animals.append(AnimalBirthWrapper(Or[i][3]/4, Or[i][3]/4, Or[i][3]/8, Or[i][3]/8, Animals[i]))
+                Animals.append(AnimalBirthWrapper(Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn/2, Animals[i]))
+                Animals[i].Unborn=0
                 
                 PrintSize = [Animals[-1].Size**.5/100/MapSize]
                 PrintTheta = [Animals[-1].T+180]
@@ -50,13 +49,13 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui,time):
         if Alive[i]:
             if Animals[i].Fat<=0:
                 gui.queue.put('Animal has metabolized its entire body')
-                gui.queue.put(str([Animals[i].Sugar,Animals[i].Size,Animals[i].Stomach]))
+                gui.queue.put(str([Animals[i].Sugar,Animals[i].Fat,Animals[i].Stomach]))
                 gui.queue.put(['kill',i])
                 Alive[i]=False
                 Animals[i].Size=0
             elif Animals[i].Sugar<=0:
                 gui.queue.put('Animal has Starved to death')
-                gui.queue.put(str([Animals[i].Sugar,Animals[i].Size,Animals[i].Stomach]))
+                gui.queue.put(str([Animals[i].Sugar,Animals[i].Fat,Animals[i].Stomach]))
                 gui.queue.put(['kill',i])
                 Alive[i]=False
             elif Animals[i].Health<=0:

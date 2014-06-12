@@ -27,13 +27,16 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     CostOfAttack=CostOfLife
     CostOfSugar=.01
     
+    if Orders.Store>0:
+        Animals[i].Fat+=Orders.Store
+    elif Orders.Store<0:
+        Animals[i].Fat+=Orders.Store*2
     
     Eat=Orders.Eat*min(LocalFood/10,min(LocalFood/10,Animals[i].Size/100))
     Eat=Orders.Eat*min(LocalFood,Animals[i].Size**(.5)/5)
     if Orders.Eat>0 and Eat>0:
         #gui.queue.put(str(Eat))
         EatLocalFood(Animals[i].X, Animals[i].Size, Veg, Eat)
-        
     Animals[i].Stomach+= Eat - Animals[i].Stomach*Animals[i].Metabolism/100
     
     #pay the caloires:
@@ -49,6 +52,4 @@ def SingleAnimalOrders(Animals,i,Veg,Or,gui):
     Or[i][2]=Orders.Attack
     Or[i][3]=Orders.Reproduce
     Or[i][4]=Orders.Grow
-    Or[i][5]=Orders.Store
-    print Or[0]
     

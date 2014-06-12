@@ -56,7 +56,7 @@ class AnimalWrapper():
 				elif 'Size' == line[:4]:
 					self.Size = float(line[4:])
 			self.Sugar = self.Size/10.0
-			self.Fat = self.Size/10.0
+			self.Fat = self.Size
 			#self.Stomach = self.Sugar*100.0/self.Metabolism*0.005
 			self.Stomach=0
 			self.Health = self.Size
