@@ -1,4 +1,0 @@
-%Initial Variables
-Metabolism .5
-Attack 0
-Size 2500
