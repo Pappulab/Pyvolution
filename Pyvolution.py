@@ -26,6 +26,7 @@ class Pyvolution(Frame):
 		self.grid(sticky=N+S+E+W)
 		self.plantIDs = []
 		self.animalIDs = []
+		self.animalFatIDs = []
 		self.animalColors = []
 		self.deadIDs = []
 		self.usingLoad = False
@@ -83,7 +84,6 @@ class Pyvolution(Frame):
 		plantSizes is a matrix giving the caloric value of each plant
 		maxCal gives the theoretical maximum amount of calories any plant can have on the grid
 		'''
-		print 'Initialize Plants'
 		self.plantIDs = []
 		
 		gridSizeX = len(plantSizes)
@@ -114,7 +114,6 @@ class Pyvolution(Frame):
 				
 				objID.append(oneID)
 			self.plantIDs.append(objID)
-		print 'Initialized plants ' , str(len(self.plantIDs))
 				
 	def updatePlants(self, plantSizes, maxCal):
 		'''
@@ -128,6 +127,7 @@ class Pyvolution(Frame):
 		dirt = (143, 95)
 		lush = (19, 79)
 		
+		
 		# For each position in the grid
 		for i in range(gridSizeX):
 			for j in range(gridSizeY):
@@ -138,10 +138,10 @@ class Pyvolution(Frame):
 				# Format the color to hex
 				thisColor = '#%02x%02x%02x' % tupColor
 				# Update the grid location to this color
-				self.canvas.itemconfig(self.plantIDs[i][j], fill=thisColor)
-				
+			        self.canvas.itemconfig(self.plantIDs[i][j], fill=thisColor)
+
 	
-	def initializeAnimals(self, colorArr, sizeArr, posArr, rotArr):
+	def initializeAnimals(self, colorArr, sizeArr, posArr, rotArr, fatArr):
 		'''
 		Initializes the animals on the grid
 		colorArr is a list of RGB tuples
@@ -156,7 +156,7 @@ class Pyvolution(Frame):
 		# The angle of the animal arc
 		angle = 40
 		
-		if len(colorArr) == len(sizeArr) == len(posArr):
+		if len(colorArr) == len(sizeArr) == len(posArr) == len(fatArr):
 			for i in range(len(colorArr)):
 			        R=sizeArr[i]*self.width
 				anID = self.canvas.create_arc(
@@ -169,10 +169,20 @@ class Pyvolution(Frame):
 				start=rotArr[i]-20)
 				
 				self.animalIDs.append(anID)
+				
+			        R=fatArr[i]*self.width
+				anID = self.canvas.create_rectangle(
+				-R + posArr[i][0]*self.width,
+				-R + posArr[i][1]*self.width,
+				R + posArr[i][0]*self.width,
+				R + posArr[i][1]*self.width,
+				fill='#%02x%02x%02x' % colorArr[i])
+				
+				self.animalFatIDs.append(anID)
 		else:
 			raise ValueError('All lists must have the same number of animals')
 	
-	def updateAnimals(self, isAliveArr, sizeArr, posArr, rotArr):
+	def updateAnimals(self, isAliveArr, sizeArr, posArr, rotArr, fatArr):
 		'''
 		Updates the animals on the grid
 		isAliveArr is an array of booleans as to whether each animal is alive or not
@@ -194,6 +204,13 @@ class Pyvolution(Frame):
 				R - 2.0/3.0*R*cos((rotArr[i]+20.0)/180.0*pi) + (posArr[i][0])*self.width,
 				R + 2.0/3.0*R*sin((rotArr[i]-20.0)/180.0*pi) + (posArr[i][1])*self.width)
 				
+				
+			        R=fatArr[i]*self.width
+				anID = self.canvas.coords(self.animalFatIDs[i],
+				-R + posArr[i][0]*self.width,
+				-R + posArr[i][1]*self.width,
+				R + posArr[i][0]*self.width,
+				R + posArr[i][1]*self.width)
 		else:
 			raise ValueError('All lists must have the same number of animals\n' + 
 			'len(animalIDs)=' + str(len(self.animalIDs)) +
@@ -210,6 +227,7 @@ class Pyvolution(Frame):
 		coords = self.canvas.coords(self.animalIDs[index])
 		# Delete the animal from the grid
 		self.canvas.delete(self.animalIDs[index])
+		self.canvas.delete(self.animalFatIDs[index])
 		# Find the center of the arc object
 		center = ((coords[0]+coords[2])/2, (coords[1]+coords[3])/2)
 		# Put an X at that location
@@ -235,6 +253,7 @@ class Pyvolution(Frame):
 		self.canvas.delete(ALL)
 		
 		self.animalIDs = []
+		self.animalFatIDs = []
 		self.deadIDs = []
 		self.plantIDs = []
 		
@@ -301,6 +320,9 @@ class Pyvolution(Frame):
 			self.canceled = True
 		finally:
 			lock.release()
+		time.sleep(.25)
+		while not self.queue.empty():
+		  response = self.queue.get()
 		
 		
 	def getSpeed(self):

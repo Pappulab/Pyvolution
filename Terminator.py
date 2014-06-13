@@ -27,19 +27,13 @@ def Terminator(Animal,LocalFood):
     
     CostOfExploring= Animal.Size**.5*(1.0/200+1.0/10+1.0*25.0**2/50000)
     GoalSugar=CostOfLife+CostOfSpeed+CostOfTurn*20**2+CostOfAcc
-    print 'GoalSugar'
-    print GoalSugar
-    print LocalFood
-    print [Animal.Size,Animal.Stomach,Animal.Sugar]
-    #print 'here'
-    #print Memory[4]
     
     
     
     
     #GoalSugar=10
         
-        
+    GoalFood=CostOfLife*3
     if LocalFood<GoalFood/2:
         if Animal.V==0:
             Orders.Accerlate=.5
@@ -62,9 +56,10 @@ def Terminator(Animal,LocalFood):
     elif LocalFood>GoalFood and Animal.V!=0:
         Orders.Accelerate=-.5
     
-    #if Animal.Size>2*GoalSize:
-    #    Orders.Reproduce=GoalSize
-    #    Orders.Accelerate=-Animal.V
+    if Animal.Fat>3000:
+        Orders.Reproduce=20
+    if Animal.Unborn>1000:
+        Orders.Reproduce=-1
         
         
     # My Memory: 

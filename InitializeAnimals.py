@@ -14,7 +14,7 @@ class OrdersWrapper():
         self.Store=0
 
 class AnimalBirthWrapper():
-    def __init__(self, Size, Health, Sugar, Fat, Stomach, A):
+    def __init__(self, Size, Health, Fat, Sugar, Stomach, A):
         self.X=[0,0]
         self.X[0]=A.X[0]
         self.X[1]=A.X[1]
@@ -25,6 +25,7 @@ class AnimalBirthWrapper():
         self.Size=Size
         self.Sugar=Sugar
         self.Fat=Fat
+        self.Unborn=0
         self.Health=Health
         self.Stomach=Stomach
         self.handle=A.handle
@@ -36,7 +37,7 @@ class AnimalBirthWrapper():
         
 
 class AnimalWrapper():
-	def __init__(self, MyDir, Name, MapSize):
+	def __init__(self, MyDir, Name, MapSize, gui):
 		# Set initial position
 		self.X = [random()*MapSize for x in [0,0]]
 		# The animal isn't yet moving
@@ -44,10 +45,9 @@ class AnimalWrapper():
 		# Set the initial direction it's facing
 		self.T = random()*360.0
 		
-		print MyDir+Name+".txt"
-		
+		gui.queue.put( MyDir+Name+".txt" )
 		try:
-			frl = open(MyDir + Name + '.txt','r')
+			frl = open(MyDir + 'BaseAnimal' + '.txt','r')
 			for line in frl:
 				if 'Metabolism' == line[:10]:
 					self.Metabolism = float(line[10:])
@@ -60,24 +60,21 @@ class AnimalWrapper():
 			#self.Stomach = self.Sugar*100.0/self.Metabolism*0.005
 			self.Stomach=0
 			self.Health = self.Size
+			self.Unborn = 0
 			# Get the function for this animal
-			print 'Starting to generate handle'
 			temp = import_module(Name, 'pkg.subpkg')
-			print 'Finished to generate handle'
 			# Setting the function to be called as the handle
 			self.handle = getattr(temp, Name)
-			print 'here2'
 		        self.Color = temp.GetColor()
-		        print 'here3'
 		        self.Memory = temp.GetMemory()
 		        self.Training = temp.GetTraining()
 		except:
 			print 'Failed to load the parameters for animal {0}'.format(Name)
 		
-def InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize):
+def InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize, gui):
 	Animals = []
 	for i in CurrentAnimals:
-	    Animals.append(AnimalWrapper(MyDir, AnimalReference[i], MapSize))
+	    Animals.append(AnimalWrapper(MyDir, AnimalReference[i], MapSize, gui))
 	return Animals
 		
 		

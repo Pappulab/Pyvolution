@@ -44,6 +44,7 @@ def threadSimulation_Mixed(gui):
             PrintTheta = [180.0-a.T for a in Animals]
    	    PrintColor = [a.Color for a in Animals]
    	    PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+   	    PrintFat = [a.Fat**.5/200/MapSize for a in Animals]
    	    
    	    PrintVeg=[[0 for k in range(MapSize)] for j in range(MapSize)]
    	    for j in range(MapSize):
@@ -55,7 +56,7 @@ def threadSimulation_Mixed(gui):
    		
    	    
    	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
-   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
+   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta, PrintFat]) 
             
             lock.acquire()
             try:
@@ -63,32 +64,32 @@ def threadSimulation_Mixed(gui):
             finally:
                 lock.release()
         else:
-            gui.queue.put('Not loading')
             startStep = 0
    	    aSeed = randint(0, maxint)
-   	    aSeed=10
+   	    #aSeed=10
             seed(aSeed)
             # Directory:
             MyDir=""
             
             # All animals that are known
-            AnimalReference = ['BaseAnimal']
+            AnimalReference = ['Terminator']
             # Animals currently in the trial
             CurrentAnimals = [0]
             # Initialize all animals in args as 'alive'
             Alive = [True for x in range(len(CurrentAnimals))]
             MapSize = 50
-            Animals = InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize)
+            Animals = InitializeAnimals(AnimalReference, MyDir, CurrentAnimals, MapSize,gui)
             
             PrintSize = [a.Size**.5/30/MapSize for a in Animals]
             PrintTheta = [180.0-a.T for a in Animals]
    	    PrintColor = [a.Color for a in Animals]
    	    PrintOldX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+   	    PrintFat = [a.Fat**.5/200/MapSize for a in Animals]
    	
-            Veg_G1 = InitializePlants(MapSize, 0, 1)
-            Veg_G1=[[Veg_G1[j][k]*10+.0005 for k in range(MapSize)] for j in range(MapSize)]
-            Veg_G2 = InitializePlants(MapSize, 0, 1)
-            #Veg_G2=[[Veg_G2[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
+            Veg_G1 = InitializePlants(MapSize, 2, 2)
+            Veg_G1=[[Veg_G1[j][k]*.10+.0005 for k in range(MapSize)] for j in range(MapSize)]
+            #Veg_G2 = InitializePlants(MapSize, 0, 1)
+            Veg_G2=[[Veg_G1[j][k]/100 for k in range(MapSize)] for j in range(MapSize)]
             Veg_D  = InitializePlants(MapSize, 0, 1)
             Veg_D=[[Veg_D[j][k]/150+.0001 for k in range(MapSize)] for j in range(MapSize)]
             Veg = InitializePlants(MapSize, 2, 2)
@@ -115,7 +116,7 @@ def threadSimulation_Mixed(gui):
             fout.close()
             
    	    gui.queue.put(['initializePlants',PrintVeg, 1])  ## change the one to the max plant size
-   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
+   	    gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta, PrintFat]) 
 	
 	Or = [[0 for x in range(6)] for y in range(len(CurrentAnimals))]
         
@@ -148,12 +149,12 @@ def threadSimulation_Mixed(gui):
 			break
 		
 		start = time.time()
-                #gui.queue.put(str(i))
 		
 # If no one is alive, end the program: ###########################################
-		#if not any(Alive):
-		    #gui.queue.put('Everyone is Dead!')
-		    #gui.queue.put(['cancel'])
+		if not any(Alive):
+		    gui.queue.put('Everyone is Dead!')
+		    gui.queue.put(['cancel'])
+		    break
 		
 # Start of Real Simulation: ##########################################################################
 		
@@ -170,15 +171,13 @@ def threadSimulation_Mixed(gui):
 		           Veg[k][j]= 0 if Veg[k][j]<0 else Veg[k][j]
 		           
 #Finished calling a simulation step here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		#gui.queue.put(str(Veg[1][1]))
 
 		if i % 100 ==1:
                     #gui.queue.put(str([i,len(Alive),int(Animals[0].V),int(Animals[0].T),int(Animals[0].Size),int(Animals[0].Sugar),int(Animals[0].Stomach),Animals[0].Memory[1]]))
-                    gui.queue.put(str([i,Animals[0].Sugar,Animals[0].Fat]))
+                    gui.queue.put(str([i,Animals[0].Sugar,Animals[0].Fat,Animals[0].Stomach, Animals[0].Unborn]))
                     fout = open('Autosave.pkl','wb')
                     pickle.dump([i, random(), AnimalReference, CurrentAnimals, Animals, Alive, Veg],fout)
                     fout.close()
-                    #gui.queue.put(str(Veg[1][1]))
 		
 # My Print Statement Ends HERE::::##########################                    
                 
@@ -186,8 +185,8 @@ def threadSimulation_Mixed(gui):
                         PrintSize = [a.Size**.5/30/MapSize for a in Animals]
                         PrintTheta = [180.0-a.T for a in Animals]
        	                PrintNewX = [[(a.X[0]+.5)/MapSize, (a.X[1]+.5)/MapSize] for a in Animals]
+                   	PrintFat = [a.Fat**.5/200/MapSize for a in Animals]
 	                
-	                #gui.queue.put(str(PrintDeltaX))
 	                
 			# Request that the GUI run one of its own functions
 ##############################
@@ -201,8 +200,7 @@ def threadSimulation_Mixed(gui):
                         
 			gui.queue.put(['updatePlants',PrintVeg, MaxColor])  # Replace 1 with the maximum food
 ###############################   delta(X,Y) position :::: Theta
-			gui.queue.put(['updateAnimals',Alive, PrintSize, PrintNewX, PrintTheta])
-			#gui.queue.put('Output at timestep: ' + str(i+1) + '/' + str(timesteps))
+			gui.queue.put(['updateAnimals',Alive[0:len(PrintSize)], PrintSize, PrintNewX, PrintTheta,PrintFat])
 			previous = int(time.time())
 		end = time.time()
 		
@@ -224,9 +222,6 @@ def threadSimulation_Mixed(gui):
 				canceled = gui.canceled
 			finally:
 				lock.release()
-			# cancel if appropriate
-			if canceled:
-				break
 			# Add the true increase in time
 			curTime += (time.time()-start)*1000
 			

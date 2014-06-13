@@ -14,13 +14,10 @@ def SingleAnimalOrders(Animals,i,Veg,Or):
         Orders.Accelerate=-Animals[i].V
     elif Orders.Accelerate+Animals[i].V>0:
         Orders.Eat=0
-        Orders.Reproduce=0
-    if Orders.Reproduce<0:
-        Orders.Reproduce=0
     Orders.Turn=(Orders.Turn +180 % 360) - 180
     Orders.Attack=0
     
-    CostOfLife=(Animals[i].Size + Animals[i].Fat)**.5/1000.0**.5
+    CostOfLife=(Animals[i].Size + Animals[i].Fat)**.5/1000.0**.5 + (Animals[i].Unborn)**.5/1000.0**.5
     CostOfSpeed=CostOfLife
     CostOfAcc=CostOfLife*4.0
     CostOfTurn=CostOfLife/20**2
@@ -44,8 +41,6 @@ def SingleAnimalOrders(Animals,i,Veg,Or):
     -CostOfAcc*Orders.Accelerate**2 - CostOfTurn*(Animals[i].V+Orders.Accelerate)*Orders.Turn**2 
     -CostOfAttack*Orders.Attack) 
     Animals[i].Sugar-= CostOfSugar*Animals[i].Sugar
-    
-    #print([int(Animals[i].Stomach),int(Animals[i].Sugar),int(Animals[i].Fat),int(Animals[i].Size)])
     
     
     Or[i][0]=Orders.Accelerate

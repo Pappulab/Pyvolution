@@ -23,22 +23,23 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui):
             if Or[i][4]>0:
                 Animals[i].Size+=Or[i][4]
             elif Or[i][3]>0:
-                Animals[i].Unborn+= Or[i][3]/5
+                Animals[i].Unborn+= float(Or[i][3])/5
+                
             
             if Or[i][3]==-1:
                 Alive.append(True)
                 CurrentAnimals.append(CurrentAnimals[i])
-                Animals.append(AnimalBirthWrapper(Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn/2, Animals[i]))
+                Animals.append(AnimalBirthWrapper(Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn, Animals[i].Unborn/2, Animals[i].Unborn/2, Animals[i]))
                 Animals[i].Unborn=0
                 
                 PrintSize = [Animals[-1].Size**.5/100/MapSize]
                 PrintTheta = [Animals[-1].T+180]
            	PrintColor = [Animals[-1].Color]
            	PrintOldX = [[Animals[-1].X[0]/MapSize, Animals[-1].X[1]/MapSize]]
-           	gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta]) 
+           	PrintFat = [Animals[-1].Fat**.5/200/MapSize]
+           	gui.queue.put(['initializeAnimals',PrintColor, PrintSize, PrintOldX, PrintTheta, PrintFat]) 
    	        gui.queue.put('An Animal was born')
    	        Or.append([0,0,0,0,0,0])
-   	        Animals[-1].Color
    	        
    	           	           	        
     for i in range(len(Alive)):
@@ -50,12 +51,15 @@ def AnimalsRun(Animals,CurrentAnimals,Alive,Or,MapSize,gui):
             if Animals[i].Fat<=0:
                 gui.queue.put('Animal has metabolized its entire body')
                 gui.queue.put(str([Animals[i].Sugar,Animals[i].Fat,Animals[i].Stomach]))
+                Animals[i].Fat=0
+                Animals[i].Sugar=0
                 gui.queue.put(['kill',i])
                 Alive[i]=False
                 Animals[i].Size=0
             elif Animals[i].Sugar<=0:
                 gui.queue.put('Animal has Starved to death')
                 gui.queue.put(str([Animals[i].Sugar,Animals[i].Fat,Animals[i].Stomach]))
+                Animals[i].Sugar=0
                 gui.queue.put(['kill',i])
                 Alive[i]=False
             elif Animals[i].Health<=0:
